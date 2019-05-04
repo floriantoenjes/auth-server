@@ -109,16 +109,16 @@ class UserConfig extends WebSecurityConfigurerAdapter {
                 .csrf().ignoringRequestMatchers(request -> "/introspect".equals(request.getRequestURI()));
     }
 
-    @Bean
-    @Override
-    public UserDetailsService userDetailsService() {
-        return new InMemoryUserDetailsManager(
-                User.withDefaultPasswordEncoder()
-                        .username("subject")
-                        .password("password")
-                        .roles("USER")
-                        .build());
-    }
+//    @Bean
+//    @Override
+//    public UserDetailsService userDetailsService() {
+//        return new InMemoryUserDetailsManager(
+//                User.withDefaultPasswordEncoder()
+//                        .username("subject")
+//                        .password("password")
+//                        .roles("USER")
+//                        .build());
+//    }
 }
 
 @FrameworkEndpoint
