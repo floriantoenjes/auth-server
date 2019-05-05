@@ -6,6 +6,8 @@ import com.floriantoenjes.social.network.authserver.user.User;
 import com.floriantoenjes.social.network.authserver.user.UserRepository;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
 import java.util.HashSet;
@@ -13,6 +15,7 @@ import java.util.Set;
 
 //@Component
 public class DatabaseLoader implements ApplicationRunner {
+    private PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
     private RoleRepository roleRepository;
 
@@ -25,17 +28,20 @@ public class DatabaseLoader implements ApplicationRunner {
 
     @Override
     public void run(ApplicationArguments args) throws Exception {
+        userRepository.deleteAll();
+        roleRepository.deleteAll();
+
         Role adminRole = new Role("ROLE_ADMIN");
-        roleRepository.save(adminRole).subscribe();
+        roleRepository.save(adminRole);
 
         Role userRole = new Role("ROLE_USER");
-        roleRepository.save(userRole).subscribe();
+        roleRepository.save(userRole);
 
         Set<Role> adminRoles = new HashSet<Role>();
         adminRoles.add(adminRole);
         adminRoles.add(userRole);
 
-        User admin = new User("admin", "password", adminRoles);
-        userRepository.save(admin).subscribe();
+        User admin = new User("admin", passwordEncoder.encode("password"), adminRoles);
+        userRepository.save(admin);
     }
 }

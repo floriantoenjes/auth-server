@@ -1,10 +1,7 @@
 package com.floriantoenjes.social.network.authserver.user;
 
-import org.springframework.data.mongodb.repository.ReactiveMongoRepository;
-import reactor.core.publisher.Mono;
+import org.springframework.data.mongodb.repository.MongoRepository;
 
-public interface UserRepository extends ReactiveMongoRepository<User, String> {
-    Mono<User> findByUsername(String username);
-
-    Mono<User> findByUsernameAndPassword(String username, String password);
+public interface UserRepository extends MongoRepository<User, String> {
+    User findByUsername(String username);
 }

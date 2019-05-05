@@ -12,6 +12,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.common.OAuth2AccessToken;
 import org.springframework.security.oauth2.config.annotation.configurers.ClientDetailsServiceConfigurer;
 import org.springframework.security.oauth2.config.annotation.web.configuration.AuthorizationServerConfigurerAdapter;
@@ -50,17 +52,22 @@ public class AuthorizationServerConfig extends AuthorizationServerConfigurerAdap
 
     private KeyPair keyPair;
 
-    public AuthorizationServerConfig(AuthenticationConfiguration configuration, KeyPair keyPair) throws Exception {
+    private PasswordEncoder passwordEncoder;
+
+    public AuthorizationServerConfig(AuthenticationConfiguration configuration, KeyPair keyPair, PasswordEncoder passwordEncoder) throws Exception {
         this.authenticationManager = configuration.getAuthenticationManager();
         this.keyPair = keyPair;
+        this.passwordEncoder = passwordEncoder;
     }
 
     @Override
     public void configure(ClientDetailsServiceConfigurer clients) throws Exception {
+        String encodedSecret = passwordEncoder.encode("buch");
+
         clients.inMemory()
                 .withClient("springboot")
                 .authorizedGrantTypes("password")
-                .secret("{noop}buch")
+                .secret(encodedSecret)
                 .scopes("all");
     }
 
@@ -109,6 +116,11 @@ class UserConfig extends WebSecurityConfigurerAdapter {
                 .csrf().ignoringRequestMatchers(request -> "/introspect".equals(request.getRequestURI()));
     }
 
+    @Bean
+    public PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
+    }
+
 //    @Bean
 //    @Override
 //    public UserDetailsService userDetailsService() {
@@ -123,7 +135,7 @@ class UserConfig extends WebSecurityConfigurerAdapter {
 
 @FrameworkEndpoint
 class IntrospectEndpoint {
-    TokenStore tokenStore;
+    private TokenStore tokenStore;
 
     public IntrospectEndpoint(TokenStore tokenStore) {
         this.tokenStore = tokenStore;
@@ -152,7 +164,7 @@ class IntrospectEndpoint {
 
 @FrameworkEndpoint
 class JwkSetEndpoint {
-    KeyPair keyPair;
+    private KeyPair keyPair;
 
     public JwkSetEndpoint(KeyPair keyPair) {
         this.keyPair = keyPair;
@@ -189,7 +201,7 @@ class KeyConfig {
 class SubjectAttributeUserTokenConverter extends DefaultUserAuthenticationConverter {
     @Override
     public Map<String, ?> convertUserAuthentication(Authentication authentication) {
-        Map<String, Object> response = new LinkedHashMap<String, Object>();
+        Map<String, Object> response = new LinkedHashMap<>();
         response.put("sub", authentication.getName());
         if (authentication.getAuthorities() != null && !authentication.getAuthorities().isEmpty()) {
             response.put(AUTHORITIES, AuthorityUtils.authorityListToSet(authentication.getAuthorities()));
