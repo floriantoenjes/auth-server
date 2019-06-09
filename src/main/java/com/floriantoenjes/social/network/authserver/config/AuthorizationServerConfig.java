@@ -117,11 +117,12 @@ class UserConfig extends WebSecurityConfigurerAdapter {
         http
                 .authorizeRequests()
                 .mvcMatchers("/.well-known/jwks.json").permitAll()
+                .mvcMatchers("/sign-up").permitAll()
                 .anyRequest().authenticated()
                 .and()
                 .httpBasic()
                 .and()
-                .csrf().ignoringRequestMatchers(request -> "/introspect".equals(request.getRequestURI()));
+                .csrf().disable();
     }
 
     @Bean

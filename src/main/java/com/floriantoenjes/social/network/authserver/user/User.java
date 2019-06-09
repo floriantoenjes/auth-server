@@ -2,13 +2,14 @@ package com.floriantoenjes.social.network.authserver.user;
 
 import com.floriantoenjes.social.network.authserver.role.Role;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-import java.util.HashSet;
 import java.util.Set;
 
 @Data
 @Document
+@NoArgsConstructor
 public class User {
 
     private String id;
